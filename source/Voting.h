@@ -11,6 +11,7 @@ public:
    std::vector<int> m_preferences;
    Ballot(){
       m_currentPreference = 0;
+      m_preferences.reserve(20);
    }
 
    int getPreference(){
@@ -36,8 +37,13 @@ public:
 class Candidate {
 public:
    std::string m_name;
-   bool m_eliminated = false;
+   bool m_eliminated;
    std::vector<Ballot*> m_ballots;
+
+   Candidate(){
+      m_eliminated = false;
+      m_ballots.reserve(1000);
+   }
 
    unsigned int numberOfBallots(){
       return m_ballots.size();

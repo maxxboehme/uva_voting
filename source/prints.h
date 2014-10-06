@@ -3,6 +3,9 @@
 #define __PRINTS__
 
 #include "Voting.h"
+#include <iostream>
+#include <vector>
+#include <list>
 
 template <typename T>
 inline std::ostream& operator<<(std::ostream& out, std::vector<T> v){
@@ -23,6 +26,14 @@ inline std::ostream& operator<<(std::ostream& out, std::vector<Candidate*> v){
          out << *v[i] << ", ";
       }
       out << *v[v.size()-1];
+   }
+   return out << "]";
+}
+
+inline std::ostream& operator<<(std::ostream& out, std::list<Candidate*> v){
+   out << "[";
+   for(std::list<Candidate*>::iterator it = v.begin(); it != v.end(); ++it){
+      out << **it << ", ";
    }
    return out << "]";
 }

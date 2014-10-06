@@ -18,7 +18,7 @@ def _get_classes_header(cpp, header, writeFile):
    req.close()
    wfile = open(writeFile, 'w')
 
-   m = re.findall(r'#include.*', cppcontent);
+   m = re.findall(r'#include(?! ").*', cppcontent);
    for includes in m:
       wfile.write(includes+"\n");
 
@@ -26,9 +26,9 @@ def _get_classes_header(cpp, header, writeFile):
    for cppClass in m:
       wfile.write(cppClass+"\n\n");
 
-   m = re.findall(r'(((?:#include)*)', content)
+   m = re.findall(r'^(?!#include).+', cppcontent, flags=re.MULTILINE)
    for rest in m:
-      wfile.write(rest);
+      wfile.write(rest+"\n");
    
 
 def _parse_options(args):
@@ -47,13 +47,13 @@ Ex:
    )
    parser.add_option(
      "--header",
-     action="store", dest="header", metavar="SOURCE", default=[],
+     action="store", dest="header", metavar="HEADER", default=[],
      help=""
    )
    
    parser.add_option(
      "-o", "--out",
-     action="store", dest="output", metavar="SOURCE", default=[],
+     action="store", dest="output", metavar="OUTPUT", default=[],
      help=""
    )
    debugGroup = optparse.OptionGroup(parser, "Debug")
