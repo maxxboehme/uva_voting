@@ -7,6 +7,7 @@
 #include "prints.h"
 #include "Voting.h"
 
+/*
 TEST(Voting, read_cand){
    std::vector<Candidate> cands;
    std::istringstream r("John Doe\nJane Smith\nSirham Sirham");
@@ -16,12 +17,34 @@ TEST(Voting, read_cand){
    ASSERT_EQ(result.str(),"[C(John Doe, 0, 0), C(Jane Smith, 0, 0), C(Sirham Sirham, 0, 0)]"); 
 }
 
+TEST(Voting, read_candA){
+   Candidate candArray[20];
+   unsigned int candArraySize = 3;
+   std::istringstream r("John Doe\nJane Smith\nSirham Sirham");
+   read_candidatesA(r, candArray, candArraySize);
+   std::stringstream result;
+   ArrayToStream(result, candArray, candArraySize);
+   ASSERT_EQ(result.str(),"[C(John Doe, 0, 0), C(Jane Smith, 0, 0), C(Sirham Sirham, 0, 0)]"); 
+}
+
 TEST(Voting, read_bal){
    std::vector<Ballot> bals;
    std::istringstream r("1 2 3\n2 1 3\n2 3 1\n");
    read_ballots(r, bals);
    std::stringstream result;
    result << bals;
+   ASSERT_EQ(result.str(), "[B(0, [0, 1, 2]), B(0, [1, 0, 2]), B(0, [1, 2, 0])]");
+}
+
+
+TEST(Voting, read_balA){
+   Ballot ballotArray[1000];
+   unsigned int ballotArraySize = 0;
+   std::istringstream r("1 2 3\n2 1 3\n2 3 1\n");
+   ballotArraySize = read_ballotsA(r, ballotArray);
+   ASSERT_EQ(ballotArraySize, 3);
+   std::stringstream result;
+   ArrayToStream(result, ballotArray, ballotArraySize);
    ASSERT_EQ(result.str(), "[B(0, [0, 1, 2]), B(0, [1, 0, 2]), B(0, [1, 2, 0])]");
 }
 
@@ -42,6 +65,25 @@ TEST(Voting, organize){
    ASSERT_EQ(result.str(),"[C(John Doe, 0, 1), C(Jane Smith, 0, 2), C(Sirham Sirham, 0, 0)]");
 }
 
+TEST(Voting, organizeA){
+   Candidate candArray[20];
+   unsigned int candArraySize = 3;
+   Ballot ballotArray[1000];
+   unsigned int ballotArraySize = 0;
+
+   std::istringstream cr("John Doe\nJane Smith\nSirham Sirham");
+   read_candidatesA(cr, candArray, candArraySize);
+
+   std::istringstream r("1 2 3\n2 1 3\n2 3 1\n");
+   ballotArraySize = read_ballotsA(r, ballotArray);
+
+   organize_ballotsA(candArray, ballotArray, ballotArraySize);
+
+   std::stringstream result;
+   ArrayToStream(result, candArray, candArraySize);
+   ASSERT_EQ(result.str(),"[C(John Doe, 0, 1), C(Jane Smith, 0, 2), C(Sirham Sirham, 0, 0)]");
+}
+
 TEST(Voting, above_margin1){
    std::vector<Candidate> cands;
    std::vector<Ballot> bals;
@@ -56,6 +98,25 @@ TEST(Voting, above_margin1){
 
    unsigned int margin = bals.size()/2;
    int result = above_margin(cands, margin);
+   ASSERT_EQ(result, 1);
+}
+
+TEST(Voting, above_margin1A){
+   Candidate candArray[20];
+   unsigned int candArraySize = 3;
+   Ballot ballotArray[1000];
+   unsigned int ballotArraySize = 0;
+
+   std::istringstream cr("John Doe\nJane Smith\nSirham Sirham");
+   read_candidatesA(cr, candArray, candArraySize);
+
+   std::istringstream r("1 2 3\n2 1 3\n2 3 1\n");
+   ballotArraySize = read_ballotsA(r, ballotArray);
+
+   organize_ballotsA(candArray, ballotArray, ballotArraySize);
+
+   unsigned int margin = ballotArraySize/2;
+   int result = above_marginA(candArray, candArraySize, margin);
    ASSERT_EQ(result, 1);
 }
 
@@ -117,6 +178,32 @@ TEST(Voting, eliminate_candidates){
    ASSERT_EQ(cresult.str(), "[C(John Doe, 0, 1), C(Jane Smith, 0, 2), C(Sirham Sirham, 1, 0), C(John Smith, 1, 0)]");
 }
 
+TEST(Voting, eliminate_candidatesA){
+   Candidate candArray[20];
+   unsigned int candArraySize = 4;
+   Ballot ballotArray[1000];
+   unsigned int ballotArraySize = 0;
+
+   std::istringstream cr("John Doe\nJane Smith\nSirham Sirham\nJohn Smith");
+   read_candidatesA(cr, candArray, candArraySize);
+
+   std::istringstream br("1 2 3 4\n2 1 3 4\n2 3 1 4\n");
+   ballotArraySize = read_ballotsA(br, ballotArray);
+
+   organize_ballotsA(candArray, ballotArray, ballotArraySize);
+
+   std::vector<Candidate*> elim;
+   eliminate_candidatesA(candArray, candArraySize, elim);
+
+   std::stringstream result;
+   result << elim;
+   ASSERT_EQ(result.str(), "[C(Sirham Sirham, 1, 0), C(John Smith, 1, 0)]");
+
+   std::stringstream cresult;
+   ArrayToStream(cresult, candArray, candArraySize);
+   ASSERT_EQ(cresult.str(), "[C(John Doe, 0, 1), C(Jane Smith, 0, 2), C(Sirham Sirham, 1, 0), C(John Smith, 1, 0)]");
+}
+
 TEST(Voting, redistribute1){
    std::vector<Candidate> cands;
    std::vector<Ballot> bals;
@@ -136,6 +223,30 @@ TEST(Voting, redistribute1){
 
    std::stringstream cresult;
    cresult << cands;
+   ASSERT_EQ(cresult.str(), "[C(John Doe, 0, 2), C(Jane Smith, 0, 4), C(Sirham Sirham, 1, 0), C(John Smith, 1, 0)]");
+}
+
+TEST(Voting, redistribute1A){
+   Candidate candArray[20];
+   unsigned int candArraySize = 4;
+   Ballot ballotArray[1000];
+   unsigned int ballotArraySize = 0;
+
+   std::istringstream cr("John Doe\nJane Smith\nSirham Sirham\nJohn Smith");
+   read_candidatesA(cr, candArray, candArraySize);
+
+   std::istringstream br("1 2 3 4\n1 2 3 4\n2 1 3 4\n2 3 1 4\n3 2 1 4\n4 2 1 3\n");
+   ballotArraySize = read_ballotsA(br, ballotArray);
+
+   organize_ballotsA(candArray, ballotArray, ballotArraySize);
+
+   std::vector<Candidate*> elims;
+   eliminate_candidatesA(candArray, candArraySize, elims);
+
+   redistribute_ballotsA(candArray, elims);
+
+   std::stringstream cresult;
+   ArrayToStream(cresult, candArray, candArraySize);
    ASSERT_EQ(cresult.str(), "[C(John Doe, 0, 2), C(Jane Smith, 0, 4), C(Sirham Sirham, 1, 0), C(John Smith, 1, 0)]");
 }
 
@@ -159,7 +270,7 @@ TEST(Voting, redistribute2){
    std::stringstream cresult;
    cresult << cands;
    ASSERT_EQ(cresult.str(), "[C(John Doe, 0, 2), C(Jane Smith, 0, 4), C(Sirham Sirham, 1, 0), C(John Smith, 1, 0)]");
-}
+}*/
 
 TEST(Voting, solve){
    std::istringstream r("1\n\n3\nJohn Doe\nJane Smith\nSirhan Sirhan\n1 2 3\n2 1 3\n2 3 1\n1 2 3\n3 1 2");

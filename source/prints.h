@@ -19,6 +19,18 @@ inline std::ostream& operator<<(std::ostream& out, std::vector<T> v){
    return out << "]";
 }
 
+template <typename T>
+inline std::ostream& ArrayToStream(std::ostream& out, T* v, unsigned int size){
+   out << "[";
+   if(size > 0){
+      for(unsigned int i = 0; i < size-1; ++i){
+         out << v[i] << ", ";
+      }
+      out << v[size-1];
+   }
+   return out << "]";
+}
+
 inline std::ostream& operator<<(std::ostream& out, std::vector<Candidate*> v){
    out << "[";
    if(v.size() > 0){
